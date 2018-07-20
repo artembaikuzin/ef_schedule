@@ -4,7 +4,7 @@ const settings = require('./settings');
 
 // EF weekly schedule scraper
 (async () => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
 
   page.on('console', msg => console.log('CONSOLE: ', msg.text()));
@@ -33,12 +33,8 @@ const settings = require('./settings');
 
       console.log('TEXT', await response.text());
       console.log('DATA: ', data)
-
-      // FIXME: possible errors because of the absolute indexing
-      const schedule = data.slice(1, 8).reverse()
-        .map((item) => { return item['translation'] });
-
-      storage.saveCurrentWeek(schedule);
+      
+      storage.saveCurrentWeek(parseSchedule(data));
     }
   });
 
@@ -46,3 +42,15 @@ const settings = require('./settings');
   await page.waitForSelector('.evc-layout-videooption-text');
   await browser.close();
 })();
+
+function parseSchedule(rawData) {
+  // FIXME: possible errors because of the absolute indexing
+  return rawData.filter(item => {
+      return item.translation !== undefined;
+    })
+    .slice(0, 7)
+    .reverse()
+    .map(item => {
+      return item.translation;
+    });
+}
