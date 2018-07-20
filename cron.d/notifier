@@ -1,0 +1,2 @@
+# Each day at 11:00
+0 11 * * *   root    cd /opt/ef_schedule; /usr/bin/node notifier.js
