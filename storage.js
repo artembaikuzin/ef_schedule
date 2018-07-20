@@ -19,5 +19,10 @@ function currentWeekExists() {
   return fs.existsSync(weekFile());
 }
 
+function saveCurrentWeek(json) {
+  fs.writeFileSync(weekFile(), JSON.stringify(json), 'utf8');
+}
+
 exports.currentWeekExists = currentWeekExists;
 exports.loadCurrentWeek = loadCurrentWeek;
+exports.saveCurrentWeek = saveCurrentWeek;

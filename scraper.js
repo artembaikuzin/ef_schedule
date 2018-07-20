@@ -4,7 +4,7 @@ const settings = require('./settings');
 
 // EF weekly schedule scraper
 (async () => {
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   page.on('console', msg => console.log('CONSOLE: ', msg.text()));
@@ -28,21 +28,21 @@ const settings = require('./settings');
     if (response.request().method() === 'POST' &&
       response.url().startsWith('https://ec.ef.com/services/api/proxy/queryproxy') &&
       response.request().postData().includes('Anncouncement_')) {
-      console.log('URL: ', response.url());
-      console.log('POSTDATA:', response.request().postData());
         
       const data = await response.json();
-      console.log(data);
-      console.log('');
+
+      console.log('TEXT', await response.text());
+      console.log('DATA: ', data)
+
+      // FIXME: possible errors because of the absolute indexing
+      const schedule = data.slice(1, 8).reverse()
+        .map((item) => { return item['translation'] });
+
+      storage.saveCurrentWeek(schedule);
     }
   });
 
   // Wait for appearance of the checkbox "I would like a video class"
   await page.waitForSelector('.evc-layout-videooption-text');
-  // await page.screenshot({path: 'example.png'});
-
   await browser.close();
 })();
-
-
-// a.slice(0, 3).reverse().map((item) => { return item });
